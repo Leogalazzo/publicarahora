@@ -123,6 +123,7 @@
     method="POST"
     action="https://script.google.com/macros/s/AKfycbyZ2audRCC0EtuZciKXrRhY0XltR8nnd1G7K11YdF8G500E9P0V-yC4xMy96xQu_XfM1Q/exec"
     target="hidden_iframe"
+    onsubmit="handleSubmit()"
   >
     <h2>Publicar Propiedad</h2>
 
@@ -254,23 +255,24 @@
       }
     });
 
-    form.addEventListener("submit", (e) => {
+    function handleSubmit() {
       if (fotosLinks.length === 0) {
-        e.preventDefault();
+        event.preventDefault();
         errorMsg.style.display = "block";
         setTimeout(() => (errorMsg.style.display = "none"), 3000);
         return;
       }
 
-      // Mostrar mensaje y limpiar formulario
-      successMsg.style.display = "block";
-      setTimeout(() => (successMsg.style.display = "none"), 3000);
-
-      form.reset();
-      preview.innerHTML = "";
-      fotosLinks = [];
-      fotosLinksInput.value = "";
-    });
+      // Esperar 1.5 segundos antes de resetear el formulario
+      setTimeout(() => {
+        form.reset();
+        preview.innerHTML = "";
+        fotosLinks = [];
+        fotosLinksInput.value = "";
+        successMsg.style.display = "block";
+        setTimeout(() => (successMsg.style.display = "none"), 3000);
+      }, 1500);
+    }
   </script>
 </body>
 </html>
