@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Publicar Propiedad</title>
   <style>
     body {
@@ -34,7 +34,9 @@
       margin-top: 12px;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -44,8 +46,10 @@
       transition: all 0.2s ease;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: #51E0C0;
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #51e0c0;
       box-shadow: 0 0 5px rgba(81, 224, 192, 0.4);
       outline: none;
     }
@@ -69,13 +73,13 @@
       object-fit: cover;
       border-radius: 8px;
       border: 2px solid #eee;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     button {
       width: 100%;
       padding: 12px;
-      background: #51E0C0;
+      background: #51e0c0;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -103,15 +107,27 @@
       margin-top: 15px;
       font-weight: bold;
     }
+
+    .error {
+      display: none;
+      text-align: center;
+      color: #e74c3c;
+      margin-top: 15px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-
-  <form id="formulario" method="POST" action="https://script.google.com/macros/s/AKfycbxzbjcOmSMdrhkzBTc9qNoTArtzdZ7D4HR702gb2bbXP5hblkwRApME718POR5BRnpiLw/exec" target="hidden_iframe">
+  <form
+    id="formulario"
+    method="POST"
+    action="https://script.google.com/macros/s/AKfycbyZ2audRCC0EtuZciKXrRhY0XltR8nnd1G7K11YdF8G500E9P0V-yC4xMy96xQu_XfM1Q/exec"
+    target="hidden_iframe"
+  >
     <h2>Publicar Propiedad</h2>
 
     <label>Título</label>
-    <input type="text" name="titulo" placeholder="Ej: Casa nueva" required>
+    <input type="text" name="titulo" placeholder="Ej: Casa nueva" required />
 
     <label>Tipo de propiedad</label>
     <select name="tipo" required>
@@ -130,62 +146,81 @@
     </select>
 
     <label>Precio</label>
-    <input type="text" name="precio" placeholder="Ej: 250000">
+    <input type="text" name="precio" placeholder="Ej: 250000" />
 
     <label>Moneda</label>
-    <input type="text" name="moneda" placeholder="USD o Pesos">
+    <input type="text" name="moneda" placeholder="USD o Pesos" />
 
     <label>Ubicación</label>
-    <input type="text" name="ubicacion" placeholder="Calle, número, ciudad y provincia">
+    <input
+      type="text"
+      name="ubicacion"
+      placeholder="Calle, número, ciudad y provincia"
+    />
 
     <label>Características</label>
-    <input type="text" name="caracteristicas" placeholder="Ej: 120 m², 3 dormitorios, 2 baños">
+    <input
+      type="text"
+      name="caracteristicas"
+      placeholder="Ej: 120 m², 3 dormitorios, 2 baños"
+    />
 
     <label>Descripción corta</label>
-    <input type="text" name="descripcionCorta" placeholder="Ej: Amplio departamento céntrico con cochera">
+    <input
+      type="text"
+      name="descripcionCorta"
+      placeholder="Ej: Amplio departamento céntrico con cochera"
+    />
 
     <label>Descripción adicional</label>
-    <textarea name="descripcion" placeholder="Agregá detalles importantes..."></textarea>
+    <textarea
+      name="descripcion"
+      placeholder="Agregá detalles importantes..."
+    ></textarea>
 
     <label>Nombre de contacto</label>
-    <input type="text" name="nombre" placeholder="Tu nombre" required>
+    <input type="text" name="nombre" placeholder="Tu nombre" required />
 
     <label>Teléfono</label>
-    <input type="text" name="telefono" placeholder="Tu teléfono o WhatsApp" required>
+    <input
+      type="text"
+      name="telefono"
+      placeholder="Tu teléfono o WhatsApp"
+      required
+    />
 
     <label>Fotos de la propiedad</label>
-    <input type="file" id="fotos" multiple accept="image/*">
+    <input type="file" id="fotos" multiple accept="image/*" />
     <div class="loader" id="loader">⏳ Subiendo imágenes...</div>
     <div class="preview" id="preview"></div>
 
-    <!-- Campo oculto donde se guardan los links de las fotos -->
-    <input type="hidden" name="fotos" id="fotosLinks">
+    <input type="hidden" name="fotos" id="fotosLinks" />
 
     <button type="submit">Enviar publicación</button>
     <div class="success" id="successMsg">✅ Enviado correctamente</div>
+    <div class="error" id="errorMsg">❌ Cargá al menos una foto antes de enviar</div>
   </form>
 
-  <!-- Iframe oculto para evitar redirección al enviar -->
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
+  <iframe name="hidden_iframe" style="display: none"></iframe>
 
   <script>
     const API_KEY = "3f059751d7037792d68c4c2f3c163040";
-
     const fotosInput = document.getElementById("fotos");
     const loader = document.getElementById("loader");
     const preview = document.getElementById("preview");
     const fotosLinksInput = document.getElementById("fotosLinks");
     const successMsg = document.getElementById("successMsg");
+    const errorMsg = document.getElementById("errorMsg");
+    const form = document.getElementById("formulario");
 
     let fotosLinks = [];
 
-    // Subir fotos a ImgBB
     async function subirImagen(archivo) {
       const formData = new FormData();
       formData.append("image", archivo);
       const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
         method: "POST",
-        body: formData
+        body: formData,
       });
       const data = await res.json();
       if (!data.success) throw new Error("Error al subir imagen");
@@ -200,7 +235,6 @@
 
       loader.style.display = "block";
 
-      // Previsualización
       for (const archivo of archivos) {
         const img = document.createElement("img");
         img.src = URL.createObjectURL(archivo);
@@ -220,17 +254,23 @@
       }
     });
 
-    // Mostrar mensaje de éxito al enviar
-    const form = document.getElementById("formulario");
-    form.addEventListener("submit", () => {
+    form.addEventListener("submit", (e) => {
+      if (fotosLinks.length === 0) {
+        e.preventDefault();
+        errorMsg.style.display = "block";
+        setTimeout(() => (errorMsg.style.display = "none"), 3000);
+        return;
+      }
+
+      // Mostrar mensaje y limpiar formulario
+      successMsg.style.display = "block";
+      setTimeout(() => (successMsg.style.display = "none"), 3000);
+
       form.reset();
       preview.innerHTML = "";
       fotosLinks = [];
       fotosLinksInput.value = "";
-      successMsg.style.display = "block";
-      setTimeout(() => successMsg.style.display = "none", 3000);
     });
   </script>
 </body>
 </html>
-
