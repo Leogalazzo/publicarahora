@@ -89,27 +89,25 @@
       background: #3ecf8e;
     }
 
-    .success, .error {
-      text-align: center;
-      margin-top: 15px;
-      font-weight: bold;
-      display: none;
-    }
-
-    .success { color: #2ecc71; }
-    .error { color: #e74c3c; }
-
     .loader {
       display: none;
       text-align: center;
       color: #666;
       font-size: 14px;
     }
+
+    .success {
+      display: none;
+      text-align: center;
+      color: #2ecc71;
+      margin-top: 15px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <form id="formulario">
+  <form id="formulario" method="POST" action="https://script.google.com/macros/s/AKfycbyR98b_QMagG1r3pVx0XyaYX2Ys-2ilDzXZ1RUHiLMKKT6DtM-1C1SlLUNHy12fBr8qag/exec" target="hidden_iframe">
     <h2>Publicar Propiedad</h2>
 
     <label>Título</label>
@@ -160,25 +158,28 @@
     <div class="loader" id="loader">⏳ Subiendo imágenes...</div>
     <div class="preview" id="preview"></div>
 
+    <!-- Campo oculto donde se guardan los links de las fotos -->
+    <input type="hidden" name="fotos" id="fotosLinks">
+
     <button type="submit">Enviar publicación</button>
-    <div class="success">✅ Enviado correctamente</div>
-    <div class="error">❌ Error al enviar. Intentá nuevamente.</div>
+    <div class="success" id="successMsg">✅ Enviado correctamente</div>
   </form>
 
-  <script>
-    // ✅ CONFIGURACIÓN
-    const API_KEY = "3f059751d7037792d68c4c2f3c163040";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyR98b_QMagG1r3pVx0XyaYX2Ys-2ilDzXZ1RUHiLMKKT6DtM-1C1SlLUNHy12fBr8qag/exec";
+  <!-- Iframe oculto para evitar redirección al enviar -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
 
-    const form = document.getElementById("formulario");
+  <script>
+    const API_KEY = "3f059751d7037792d68c4c2f3c163040";
+
     const fotosInput = document.getElementById("fotos");
-    const preview = document.getElementById("preview");
     const loader = document.getElementById("loader");
-    const successMsg = document.querySelector(".success");
-    const errorMsg = document.querySelector(".error");
+    const preview = document.getElementById("preview");
+    const fotosLinksInput = document.getElementById("fotosLinks");
+    const successMsg = document.getElementById("successMsg");
+
     let fotosLinks = [];
 
-    // 🔹 Subir imágenes a ImgBB
+    // Subir fotos a ImgBB
     async function subirImagen(archivo) {
       const formData = new FormData();
       formData.append("image", archivo);
@@ -199,7 +200,7 @@
 
       loader.style.display = "block";
 
-      // Vista previa local
+      // Previsualización
       for (const archivo of archivos) {
         const img = document.createElement("img");
         img.src = URL.createObjectURL(archivo);
@@ -209,6 +210,7 @@
       try {
         const promesas = Array.from(archivos).map(subirImagen);
         fotosLinks = await Promise.all(promesas);
+        fotosLinksInput.value = fotosLinks.join(", ");
         console.log("✅ Links subidos:", fotosLinks);
       } catch (err) {
         console.error("❌ Error al subir imágenes:", err);
@@ -218,42 +220,15 @@
       }
     });
 
-    // 🔹 Enviar formulario a Google Sheets
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const datos = Object.fromEntries(new FormData(form).entries());
-      datos.fotos = fotosLinks;
-
-      if (!fotosLinks.length) {
-        if (!confirm("No subiste fotos. ¿Querés enviar igual?")) return;
-      }
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify(datos),
-          headers: { "Content-Type": "application/json" }
-        });
-
-        const respuesta = await res.json();
-
-        if (respuesta.status === "success") {
-          successMsg.style.display = "block";
-          errorMsg.style.display = "none";
-          form.reset();
-          preview.innerHTML = "";
-          fotosLinks = [];
-          setTimeout(() => (successMsg.style.display = "none"), 3000);
-        } else {
-          throw new Error(respuesta.message || "Error desconocido");
-        }
-      } catch (error) {
-        console.error("Error al enviar:", error);
-        errorMsg.style.display = "block";
-        successMsg.style.display = "none";
-        setTimeout(() => (errorMsg.style.display = "none"), 3000);
-      }
+    // Mostrar mensaje de éxito al enviar
+    const form = document.getElementById("formulario");
+    form.addEventListener("submit", () => {
+      form.reset();
+      preview.innerHTML = "";
+      fotosLinks = [];
+      fotosLinksInput.value = "";
+      successMsg.style.display = "block";
+      setTimeout(() => successMsg.style.display = "none", 3000);
     });
   </script>
 </body>
